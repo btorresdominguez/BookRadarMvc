@@ -1,0 +1,145 @@
+﻿@model List<BookRadar.Models.LibroViewModel>
+
+@{
+    ViewData["Title"] = "Buscar Libros por Autor";
+}
+
+<style>
+    thead.custom-header th {
+        background-color: #cce5ff; /* Azul muy claro */
+        color: #004085; /* Azul oscuro para texto */
+        border-color: #b8daff; /* Borde azul suave */
+    }
+</style>
+
+<h2 class="mb-4">@ViewData["Title"]</h2>
+
+<!-- Spinner de carga, inicialmente oculto -->
+<div id="spinner" class="d-none d-flex justify-content-center my-3">
+    <div class="spinner-border text-primary" role="status" aria-hidden="true"></div>
+    <span class="ms-2">Buscando, por favor espere...</span>
+</div>
+
+<!-- Formulario de búsqueda -->
+<form id="formBusqueda" method="post" asp-controller="Libros" asp-action="Index" novalidate>
+    <div class="mb-3">
+        <label for="nombreAutor" class="form-label fw-bold text-primary">
+            Nombre del Autor
+        </label>
+        <input type="text"
+               id="nombreAutor"
+               name="nombreAutor"
+               class="form-control"
+               required
+               minlength="3"
+               placeholder="Ingrese nombre del autor" />
+        <div class="invalid-feedback">
+            Por favor ingrese al menos 3 caracteres para el nombre del autor.
+        </div>
+    </div>
+    <button type="submit" id="btnBuscar" class="btn btn-primary">
+        Buscar
+    </button>
+</form>
+
+
+<!-- Mensaje desde el controlador -->
+@if (ViewBag.Mensaje != null)
+{
+    <div class="alert alert-warning mt-3">@ViewBag.Mensaje</div>
+}
+
+<!-- Búsquedas -->
+@if (Model != null && Model.Any())
+{
+    <h3 class="mt-5">Resultados:</h3>
+    <table id="bootstrap-data-table" class="table table-bordered table-striped mt-3">
+        <thead class="custom-header">
+            <tr>
+                <th>Título</th>
+                <th>Año</th>
+                <th>Editorial</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var libro in Model)
+            {
+                <tr>
+                    <td>@libro.Titulo</td>
+                    <td>@(libro.AnioPublicacion?.ToString() ?? "-")</td>
+                    <td>@libro.Editorial</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p class="mt-4">No hay búsquedas previas.</p>
+}
+
+@section Scripts {
+    <script>
+        (function () {
+            'use strict';
+
+            const form = document.getElementById('formBusqueda');
+            const inputAutor = document.getElementById('nombreAutor');
+            const spinner = document.getElementById('spinner');
+            const btnBuscar = document.getElementById('btnBuscar');
+
+            function validar() {
+                const val = inputAutor.value.trim();
+                if (val.length < 3) {
+                    inputAutor.classList.add('is-invalid');
+                    return false;
+                } else {
+                    inputAutor.classList.remove('is-invalid');
+                    return true;
+                }
+            }
+
+            inputAutor.addEventListener('input', validar);
+
+            form.addEventListener('submit', function (e) {
+                e.preventDefault(); // Evita el envío del formulario por defecto
+                if (!validar()) {
+                    return; // Si no es válido, no envíes el formulario
+                }
+                btnBuscar.disabled = true; // Desactiva el botón de búsqueda
+                spinner.classList.remove('d-none'); // Muestra el spinner
+
+                // Envía el formulario
+                setTimeout(() => {
+                    form.submit(); // Envía el formulario
+                }, 1000); // Simula un retraso de 1 segundo
+            });
+        })();
+    </script>
+
+    <!-- Inicializa DataTables -->
+    <script>
+        $(document).ready(function() {
+            $('#bootstrap-data-table').DataTable({
+                language: {
+                    "decimal": "",
+                    "emptyTable": "No hay información",
+                    "info": "Mostrando _START_ a _END_ de _TOTAL_ Libros",
+                    "infoEmpty": "Mostrando 0 to 0 of 0 Entradas",
+                    "infoFiltered": "(Filtrado de _MAX_ total entradas)",
+                    "lengthMenu": "Mostrar _MENU_ Entradas",
+                    "loadingRecords": "Cargando...",
+                    "processing": "Procesando...",
+                    "search": "Buscar:",
+                    "zeroRecords": "Sin resultados encontrados",
+                    "paginate": {
+                        "first": "Primero",
+                        "last": "Último",
+                        "next": "Siguiente",
+                        "previous": "Anterior"
+                    }
+                }
+            });
+        });
+    </script>
+}
