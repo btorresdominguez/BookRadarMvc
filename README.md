@@ -34,11 +34,6 @@ BookRadar/
 
 ## Pasos para ejecutar el proyecto
 
-
----
-
-## Pasos para ejecutar el proyecto
-
 1. **Instalar .NET 8 SDK**  
    Descarga e instala desde:  
    https://dotnet.microsoft.com/en-us/download/dotnet/8.0
